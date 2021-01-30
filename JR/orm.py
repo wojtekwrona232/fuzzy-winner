@@ -1,4 +1,4 @@
-from sqlalchemy import engine, Column, FLOAT, String, Enum, TIMESTAMP, ForeignKey, Integer, Boolean
+from sqlalchemy import engine, Column, FLOAT, String, Enum, DATETIME, ForeignKey, Integer, Boolean
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker, relationship
@@ -11,6 +11,7 @@ class TransferStatusEnum(enum.Enum):
     UNVERIFIED = 0
     AWAITS_MANUAL_VERIFICATION = 1
     VERIFIED = 2
+    REJECTED = 3
 
 
 class Banks(Base):
@@ -39,12 +40,12 @@ class Transfers(Base):
     money = Column('kwota', FLOAT, nullable=False)
     id_sender = Column('id_nadawcy', Integer, ForeignKey('klienci.id'), nullable=False)
     id_receiver = Column('id_odbiorcy', Integer, ForeignKey('klienci.id'), nullable=False)
-    type = Column('typ', String, nullable=False)
-    time = Column('czas', TIMESTAMP, nullable=False)
+    time = Column('czas', DATETIME, nullable=False)
     verified = Column('zweryfikowany', Boolean, nullable=False)
     status = Column('status', Enum(TransferStatusEnum), nullable=False)
+    title = Column('tytul', String, nullable=False)
     sender = relationship("Client", lazy='subquery', foreign_keys=[id_sender])
-    receiver = relationship("Client", lazy='subquery', foreign_keys=[id_sender])
+    receiver = relationship("Client", lazy='subquery', foreign_keys=[id_receiver])
 
 
 # class for orm connection to the database
@@ -110,8 +111,6 @@ class DBMethods:
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()
 
     def get(self, entity, id):
         try:
@@ -119,8 +118,6 @@ class DBMethods:
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()
 
     def get_query(self, entity):
         try:
@@ -128,19 +125,15 @@ class DBMethods:
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()
 
     def add(self, entity):
         try:
             self.util.get_session().add(entity)
             self.util.get_session().commit()
             return True
-        except :
+        except Exception:
             self.util.session_rollback()
-            raise
-        finally:
-            self.util.close_session()
+            raise Exception
 
     def delete_id(self, entity, e_id):
         try:
@@ -150,8 +143,6 @@ class DBMethods:
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()
 
     def update_banks(self, e_id, new_entity):
         try:
@@ -160,11 +151,9 @@ class DBMethods:
             bank.account_number = new_entity.account_number
             bank.balance = new_entity.balance
             self.util.get_session().commit()
-        except:
+        except Exception:
             self.util.session_rollback()
-            raise
-        finally:
-            self.util.close_session()
+            raise Exception
 
     def update_client(self, e_id, new_entity):
         try:
@@ -180,22 +169,18 @@ class DBMethods:
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()
 
     def update_transfer(self, e_id, new_entity):
         try:
             sel = self.util.get_session().query(Transfers).get(e_id)
-            sel.money = new_entity.__getitem__(0)
-            sel.id_sender = new_entity.__getitem__(1)
-            sel.id_receiver = new_entity.__getitem__(2)
-            sel.type = new_entity.__getitem__(3)
-            sel.time = new_entity.__getitem__(4)
-            sel.verified = new_entity.__getitem__(5)
-            sel.status = new_entity.__getitem__(6)
+            sel.money = new_entity.money
+            sel.id_sender = new_entity.id_sender
+            sel.id_receiver = new_entity.id_receiver
+            sel.time = new_entity.time
+            sel.verified = new_entity.verified
+            sel.status = new_entity.status
+            sel.title = new_entity.title
             self.util.get_session().commit()
         except Exception:
             self.util.session_rollback()
             raise Exception
-        finally:
-            self.util.close_session()

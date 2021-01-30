@@ -107,6 +107,7 @@
             }
         }
     </style>
+
 </head>
 <body>
 
@@ -125,39 +126,68 @@
                         <div class="card wow fadeIn" data-wow-delay="0.3s">
                             <div class="card-body">
                                 <div class="form-header mbutton_long" style="margin-bottom: 20px;">
-                                    <h3><i class="fas fa-file-invoice-dollar mt-2"></i>&nbsp&nbspPrzelewy do weryfikacji
-                                    </h3>
+                                    <h3><i class="fas fa-file-invoice-dollar mt-2"></i>&nbsp&nbspPrzelewy do weryfikacji</h3>
                                 </div>
 
                                 <!--Header-->
                                 <div class='table-responsive table-wrapper-scroll-y my-custom-scrollbar mt-4'>
-                                    <!--Table-->
-                                    <table id="tablePreview" class="table table-hover">
-                                        <!--Table head-->
-                                        <thead>
-                                        <tr>
-                                            <th>Nadawca</th>
-                                            <th>Odbiorca</th>
-                                            <th>Kwota</th>
-                                            <th>Potwierdzić?</th>
-
-                                        </tr>
-                                        </thead>
-                                        <!--Table head-->
-                                        <!--Table body-->
-                                        <tbody>
-                                        {% for o in obj %}
-                                        <tr>
-                                            <td>{{ o['Sender']['Account'] }}</td>
-                                            <td>{{ o['Receiver']['Account'] }}</td>
-                                            <td>{{ o['Details']['Amount'] }}</td>
-                                            <td><button type="button" class="btn btn-sm btn-success">Tak</button><button type="button" class="btn btn-sm btn-danger">Nie</button></td>
-                                        </tr>
-
-                                        </tbody>
-                                        <!--Table body-->
-                                    </table>
-                                    <!--Table-->
+                                    <form method="post" action="{{ url_for('manual_verification') }}">
+                                        <!--Table-->
+                                        <table id="tablePreview" class="table table-hover">
+                                            <!--Table head-->
+                                            <thead>
+                                            <tr>
+                                                <th>Nadawca</th>
+                                                <th>Odbiorca</th>
+                                                <th>Kwota</th>
+                                                <th>Potwierdzić?</th>
+                                            </tr>
+                                            </thead>
+                                            <!--Table head-->
+                                            <!--Table body-->
+                                            <tbody>
+                                            {% for o in obj %}
+                                            <tr>
+                                                <td>
+                                                    <p class="text-left">
+                                                        {{ o.sender.name }}
+                                                        <br>
+                                                        {{ o.sender.address }}
+                                                        <br>
+                                                        {{ o.sender.city + ',' + o.sender.zip_code }}
+                                                        <br>
+                                                        {{ o.sender.account_number }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-left">
+                                                        {{ o.receiver.name }}
+                                                        <br>
+                                                        {{ o.receiver.address }}
+                                                        <br>
+                                                        {{ o.receiver.city + ' ' + o.receiver.zip_code }}
+                                                        <br>
+                                                        {{ o.receiver.account_number }}
+                                                    </p>
+                                                </td>
+                                                <td>{{ '%0.2f'|format(o.money|float) }} zł</td>
+                                                <td>
+                                                    <input type="hidden" name="verifyId" value="{{ o.id }}">
+                                                    <label>Wybierz opcję
+                                                        <select class="md-form" name="verify">
+                                                            <option value="1" selected>Zatwierdź</option>
+                                                            <option value="2">Odrzuć</option>
+                                                        </select>
+                                                    </label>
+                                                </td>
+                                            {% endfor %}
+                                            </tr>
+                                            </tbody>
+                                            <!--Table body-->
+                                        </table>
+                                        <!--Table-->
+                                        <button class="btn btn-primary" type="submit" id="form_sub">Potwierdź przelewy</button>
+                                    </form>
                                 </div>
                             </div>
                             <!--/Form with header-->
@@ -171,7 +201,6 @@
 
 </header>
 <!--Main Navigation-->
-
 
 <!-- jQuery -->
 <script type="text/javascript" src="static/js/jquery.min.js"></script>
