@@ -40,8 +40,8 @@ def find_transfers_for_bank(bank):
         recipient = db.get_query(Client).filter_by(id=transfer.id_receiver).first()
         sender = db.get_query(Client).filter_by(id=transfer.id_sender).first()
         re_bank = db.get_query(Banks).filter_by(name=recipient.bank.name).first()
-        if str(bank).__eq__(re_bank.name):
-            if transfer.status == 2 or transfer.status == 3:
+        if bank == re_bank.name:
+            if transfer.status.name == 'VERIFIED' or transfer.status.name == 'REJECTED':
                 transfers_list.append(make_json_transfers(transfer, sender, recipient))
     return transfers_list
 
@@ -156,6 +156,10 @@ def get_sum(listt):
 def verification_get_data(obj, bank):
     db = DBMethods()
     current_bank = db.get_query(Banks).filter_by(account_number=bank['AccountNumber']).first()
+    if current_bank is None:
+        b = Banks(name=bank['Name'], account_number=bank['AccountNumber'], balance=10000.00)
+        DBMethods().add(b)
+
     to_be_verified_manually = []
     to_be_verified_automatically = []
 
