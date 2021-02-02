@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 30 Sty 2021, 02:16
+-- Czas generowania: 02 Lut 2021, 20:54
 -- Wersja serwera: 10.4.17-MariaDB
 -- Wersja PHP: 8.0.0
 
@@ -39,8 +39,8 @@ CREATE TABLE `banki` (
 --
 
 INSERT INTO `banki` (`id`, `nazwa`, `nr_konta`, `balans`) VALUES
-(1, 'Test1', '06848510220000000000000000', 25500),
-(2, 'Test 2', '08848510250000000000000000', 33000);
+(1, 'Test1', '06848510220000000000000000', 24500),
+(2, 'Test 2', '08848510250000000000000000', 32000);
 
 -- --------------------------------------------------------
 
@@ -83,7 +83,7 @@ CREATE TABLE `przelewy` (
   `id_odbiorcy` int(11) NOT NULL,
   `czas` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `zweryfikowany` tinyint(1) NOT NULL,
-  `status` enum('UNVERIFIED','AWAITS_MANUAL_VERIFICATION','VERIFIED','REJECTED') NOT NULL,
+  `status` enum('UNVERIFIED','AWAITS_MANUAL_VERIFICATION','VERIFIED','REJECTED','EXECUTED_TRUE','EXECUTED_FALSE') NOT NULL,
   `tytul` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -98,7 +98,7 @@ INSERT INTO `przelewy` (`id`, `kwota`, `id_nadawcy`, `id_odbiorcy`, `czas`, `zwe
 (35, 500, 9, 10, '2021-01-30 01:44:18', 1, 'REJECTED', 'Przelew'),
 (36, 2000, 9, 11, '2021-01-30 01:29:37', 1, 'REJECTED', 'Przelew'),
 (37, 500, 9, 10, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
-(38, 2000, 9, 11, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew'),
+(38, 2000, 9, 11, '2021-02-02 20:50:00', 1, 'EXECUTED_TRUE', 'Przelew'),
 (39, 500, 2, 8, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
 (40, 2000, 2, 12, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew'),
 (41, 500, 2, 8, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
@@ -106,7 +106,11 @@ INSERT INTO `przelewy` (`id`, `kwota`, `id_nadawcy`, `id_odbiorcy`, `czas`, `zwe
 (43, 500, 2, 8, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
 (44, 2000, 2, 12, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew'),
 (45, 500, 9, 10, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
-(46, 2000, 9, 11, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew');
+(46, 2000, 9, 11, '2021-02-02 20:50:00', 1, 'EXECUTED_FALSE', 'Przelew'),
+(47, 500, 9, 10, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
+(48, 2000, 9, 11, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew'),
+(49, 500, 9, 10, '2020-01-12 17:50:00', 1, 'VERIFIED', 'Przelew'),
+(50, 2000, 9, 11, '2020-01-12 17:50:00', 0, 'AWAITS_MANUAL_VERIFICATION', 'Przelew');
 
 --
 -- Indeksy dla zrzutów tabel
@@ -153,7 +157,7 @@ ALTER TABLE `klienci`
 -- AUTO_INCREMENT dla tabeli `przelewy`
 --
 ALTER TABLE `przelewy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- Ograniczenia dla zrzutów tabel

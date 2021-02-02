@@ -2,7 +2,7 @@ from sqlalchemy import engine, Column, FLOAT, String, Enum, DATETIME, ForeignKey
 from sqlalchemy.engine import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker, relationship
-import datetime, time, enum
+import enum
 
 Base = declarative_base()
 
@@ -12,6 +12,8 @@ class TransferStatusEnum(enum.Enum):
     AWAITS_MANUAL_VERIFICATION = 1
     VERIFIED = 2
     REJECTED = 3
+    EXECUTED_TRUE = 4
+    EXECUTED_FALSE = 5
 
 
 class Banks(Base):
@@ -57,7 +59,7 @@ class SQLUtil:
 
     # creates new engine for orm
     def create_engine(self):
-        string = 'mysql+pymysql://root:@127.0.0.1/jr'
+        string = 'mysql+pymysql://freedbtech_jr_pab:@zO!WGvQ&I&R28V203w22$$$@freedb.tech/freedbtech_jr'
         self.__engine__ = create_engine(string)
 
     # return current engine for orm

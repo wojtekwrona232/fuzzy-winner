@@ -1,8 +1,6 @@
-import datetime, time, json, xmltodict
-from flask import Blueprint, request, Flask, jsonify, render_template, redirect, url_for
-from orm import *
+import xmltodict
+from flask import request, Flask, render_template
 from verification import *
-import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
 
@@ -78,8 +76,9 @@ def incoming():
 
     transfers = obj_json['Data']['Transfer']
     bank = obj_json['Data']['BankData']
+    return_transfers = obj_json['Data']['ReturnTransfer']
 
-    json_return = verification_get_data(transfers, bank)
+    json_return = verification_get_data(transfers, bank, return_transfers)
 
     return json_return
 
