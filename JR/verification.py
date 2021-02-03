@@ -206,77 +206,79 @@ def verification_get_data(obj, bank, return_transfers):
         b = Banks(name=bank['Name'], account_number=bank['AccountNumber'], balance=10000.00)
         DBMethods().add(b)
 
-    return_transfers_status(return_transfers)
+    if return_transfers is not None:
+        return_transfers_status(return_transfers)
 
-    to_be_verified_manually = []
-    to_be_verified_automatically = []
+    if obj is not None:
+        to_be_verified_manually = []
+        to_be_verified_automatically = []
 
-    for i in obj:
-        i['Details']['Status'] = TransferStatusEnum.UNVERIFIED.name
+        for i in obj:
+            i['Details']['Status'] = TransferStatusEnum.UNVERIFIED.name
 
-        if float(i['Details']['Amount']) > 1000.00:
-            i['Details']['Status'] = TransferStatusEnum.AWAITS_MANUAL_VERIFICATION.name
-            i['Details']['Verified'] = False
-            to_be_verified_manually.append(i)
+            if float(i['Details']['Amount']) > 1000.00:
+                i['Details']['Status'] = TransferStatusEnum.AWAITS_MANUAL_VERIFICATION.name
+                i['Details']['Verified'] = False
+                to_be_verified_manually.append(i)
+            else:
+                to_be_verified_automatically.append(i)
+
+        sum_ver_man = get_sum(to_be_verified_manually)
+        sum_ver_auto = get_sum(to_be_verified_automatically)
+        sum_all = round(sum_ver_auto+sum_ver_man, 2)
+
+        print('Sum of the auto verified transactions:\t%.2f' % sum_ver_auto)
+        print('Sum of the manually verified transactions:\t%.2f' % sum_ver_man)
+        print('Total sum of the transfers:\t%.2f' % sum_all)
+        print(float(bank['Amount']))
+        if sum_all == float(bank['Amount']):
+            if sum_ver_auto > float(current_bank.balance) \
+                    or sum_ver_man > float(current_bank.balance)\
+                    or sum_all > float(current_bank.balance):
+                for j in obj:
+                    j['Details']['Status'] = TransferStatusEnum.UNVERIFIED.name
+                    j['Details']['Verified'] = False
+                print('Transactions can not be executed, bank balance is to low')
+                js = {
+                    "error": 'Transactions can not be executed, bank balance is to low'
+                }
+                return json.dumps(js, ensure_ascii=False, indent=4).encode('utf8')
+            else:
+                print('Transactions can be executed, bank balance is ok')
+
+                list1, amount_sum1 = auto_verification(to_be_verified_automatically, bank)
+                print("Auto auth:\t%.2f" % amount_sum1)
+                add_transfer_to_db(list1)
+
+                list2, amount_sum2 = manual_verification(to_be_verified_manually)
+                print("Manual auth:\t%.2f" % amount_sum2)
+                add_transfer_to_db(list2)
+
+                sum1 = amount_sum1+amount_sum2
+                print('Total sum of the transfers:\t%.2f' % sum1)
+
+                l = []
+                for i in to_be_verified_manually:
+                    l.append(i)
+                for j in to_be_verified_automatically:
+                    l.append(j)
+
+                cur_bank = DBMethods().get_query(Banks).filter_by(account_number=bank['AccountNumber']).first()
+                js = {
+                    "BankData": {
+                        "AccountNumber": bank['AccountNumber'],
+                        "Balance": cur_bank.balance
+                    },
+                    "ReturnTransfers": l,
+                    "Transfers": find_transfers_for_bank(bank['Name'])
+                }
+                return jsonify(js)
         else:
-            to_be_verified_automatically.append(i)
-
-    sum_ver_man = get_sum(to_be_verified_manually)
-    sum_ver_auto = get_sum(to_be_verified_automatically)
-    sum_all = round(sum_ver_auto+sum_ver_man, 2)
-
-    print('Sum of the auto verified transactions:\t%.2f' % sum_ver_auto)
-    print('Sum of the manually verified transactions:\t%.2f' % sum_ver_man)
-    print('Total sum of the transfers:\t%.2f' % sum_all)
-    print(float(bank['Amount']))
-    if sum_all == float(bank['Amount']):
-        if sum_ver_auto > float(current_bank.balance) \
-                or sum_ver_man > float(current_bank.balance)\
-                or sum_all > float(current_bank.balance):
             for j in obj:
                 j['Details']['Status'] = TransferStatusEnum.UNVERIFIED.name
-                j['Details']['Verified'] = False
-            print('Transactions can not be executed, bank balance is to low')
+            print('Transactions can not be executed, sum of transfers in not equal to stated sum in the file')
             js = {
-                "error": 'Transactions can not be executed, bank balance is to low'
+                "error": 'Transactions can not be executed, sum of transfers in not equal to stated sum in the file'
             }
             return json.dumps(js, ensure_ascii=False, indent=4).encode('utf8')
-        else:
-            print('Transactions can be executed, bank balance is ok')
-
-            list1, amount_sum1 = auto_verification(to_be_verified_automatically, bank)
-            print("Auto auth:\t%.2f" % amount_sum1)
-            add_transfer_to_db(list1)
-
-            list2, amount_sum2 = manual_verification(to_be_verified_manually)
-            print("Manual auth:\t%.2f" % amount_sum2)
-            add_transfer_to_db(list2)
-
-            sum1 = amount_sum1+amount_sum2
-            print('Total sum of the transfers:\t%.2f' % sum1)
-
-            l = []
-            for i in to_be_verified_manually:
-                l.append(i)
-            for j in to_be_verified_automatically:
-                l.append(j)
-
-            cur_bank = DBMethods().get_query(Banks).filter_by(account_number=bank['AccountNumber']).first()
-            js = {
-                "BankData": {
-                    "AccountNumber": bank['AccountNumber'],
-                    "Balance": cur_bank.balance
-                },
-                "ReturnTransfers": l,
-                "Transfers": find_transfers_for_bank(bank['Name'])
-            }
-            return jsonify(js)
-    else:
-        for j in obj:
-            j['Details']['Status'] = TransferStatusEnum.UNVERIFIED.name
-        print('Transactions can not be executed, sum of transfers in not equal to stated sum in the file')
-        js = {
-            "error": 'Transactions can not be executed, sum of transfers in not equal to stated sum in the file'
-        }
-        return json.dumps(js, ensure_ascii=False, indent=4).encode('utf8')
 

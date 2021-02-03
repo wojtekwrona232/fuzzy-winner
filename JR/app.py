@@ -74,13 +74,14 @@ def incoming():
 
     obj_json = obj
 
-    transfers = obj_json['Data']['Transfer']
     bank = obj_json['Data']['BankData']
-    return_transfers = obj_json['Data']['ReturnTransfer']
 
-    json_return = verification_get_data(transfers, bank, return_transfers)
-
-    return json_return
+    if obj_json['Data']['Transfer'] is not None or obj_json['Data']['ReturnTransfer'] is not None:
+        transfers = obj_json['Data']['Transfer']
+        return_transfers = obj_json['Data']['ReturnTransfer']
+        json_return = verification_get_data(transfers, bank, return_transfers)
+        return json_return
+    return jsonify(obj_json), 404
 
 
 if __name__ == '__main__':
