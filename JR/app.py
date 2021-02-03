@@ -80,7 +80,7 @@ def incoming():
         transfers = obj_json['Data']['Transfer']
         return_transfers = obj_json['Data']['ReturnTransfer']
         json_return = verification_get_data(transfers, bank, return_transfers)
-        return json_return
+        return json_return, 200
     return jsonify(obj_json), 404
 
 
