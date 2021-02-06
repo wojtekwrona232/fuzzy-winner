@@ -5,12 +5,13 @@ from flask import jsonify
 
 
 def make_json_transfers(transfer, sender, recipient):
-    timestamp = datetime.datetime.fromisoformat(str(transfer.time)).timestamp()
+    # time = str(transfer.time)
+    # timestamp = datetime.datetime.fromisoformat(time).timestamp()
     return {
         "Details": {
             "Amount": transfer.money,
             "Status": transfer.status.name,
-            "Timestamp": str(datetime.datetime.fromtimestamp(int(timestamp))),
+            "Timestamp": str(transfer.time),
             "Title": transfer.title,
             "Verified": transfer.verified
         },
@@ -198,7 +199,7 @@ def auto_verification(listt, bank):
         if bank_id != -1 and bank_id >= 0:
             db = d.get_query(Banks).filter_by(id=bank_id).first()
             bal = float(db.balance) - float(i['Details']['Amount'])
-            up_ba = Banks(name=i['Recipient']['BankName'], account_number=db.account_number, balance=bal)
+            up_ba = Banks(name=db.name, account_number=db.account_number, balance=bal)
             DBMethods().update_banks(db.id, up_ba)
             amount_sum += float(i['Details']['Amount'])
             # print(i['Details']['Amount'])

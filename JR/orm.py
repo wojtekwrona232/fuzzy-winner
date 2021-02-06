@@ -28,9 +28,9 @@ class Client(Base):
     __tablename__ = 'klienci'
     id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
     name = Column('imie_nazwisko', String, nullable=False)
-    address = Column('adres', String, nullable=False)
-    zip_code = Column('kod_pocztowy', String, nullable=False)
-    city = Column('miejscowosc', String, nullable=False)
+    address = Column('adres', String, nullable=True)
+    zip_code = Column('kod_pocztowy', String, nullable=True)
+    city = Column('miejscowosc', String, nullable=True)
     account_number = Column('nr_konta', String, nullable=False)
     bank_id = Column('id_bank', Integer, ForeignKey('banki.id'), nullable=False)
     bank = relationship("Banks", lazy='subquery')
@@ -59,7 +59,7 @@ class SQLUtil:
 
     # creates new engine for orm
     def create_engine(self):
-        string = 'mysql+pymysql://freedbtech_jr_pab:@zO!WGvQ&I&R28V203w22$$$@freedb.tech/freedbtech_jr'
+        string = 'mysql+pymysql://freedbtech_jednostkaR:1234567890@freedb.tech/freedbtech_jednostka'
         self.__engine__ = create_engine(string)
 
     # return current engine for orm
@@ -110,41 +110,41 @@ class DBMethods:
     def get_all(self, entity):
         try:
             return self.util.get_session().query(entity).all()
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def get(self, entity, id):
         try:
             return self.util.get_session().query(entity).get(id)
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def get_query(self, entity):
         try:
             return self.util.get_session().query(entity)
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def add(self, entity):
         try:
             self.util.get_session().add(entity)
             self.util.get_session().commit()
             return True
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def delete_id(self, entity, e_id):
         try:
             a = self.util.get_session().query(entity).get(e_id)
             self.util.get_session().delete(a)
             self.util.get_session().commit()
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def update_banks(self, e_id, new_entity):
         try:
@@ -153,9 +153,9 @@ class DBMethods:
             bank.account_number = new_entity.account_number
             bank.balance = new_entity.balance
             self.util.get_session().commit()
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def update_client(self, e_id, new_entity):
         try:
@@ -168,9 +168,9 @@ class DBMethods:
             sel.account_number = new_entity.__getitem__(6)
             sel.bank_id = new_entity.__getitem__(7)
             self.util.get_session().commit()
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise
 
     def update_transfer(self, e_id, new_entity):
         try:
@@ -183,6 +183,6 @@ class DBMethods:
             sel.status = new_entity.status
             sel.title = new_entity.title
             self.util.get_session().commit()
-        except Exception:
+        except:
             self.util.session_rollback()
-            raise Exception
+            raise

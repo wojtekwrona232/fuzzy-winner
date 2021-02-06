@@ -1,4 +1,5 @@
 import xmltodict
+import collections
 from flask import request, Flask, render_template
 from verification import *
 
@@ -73,13 +74,27 @@ def incoming():
     obj = xmltodict.parse(request.data)
 
     obj_json = obj
+    print(json.dumps(obj_json, indent=4, default=str).encode('utf8'))
 
     bank = obj_json['Data']['BankData']
 
-    if obj_json['Data']['Transfer'] is not None or obj_json['Data']['ReturnTransfer'] is not None:
+    if 'ReturnTransfer' not in obj_json['Data']:
+        transfers = obj_json['Data']['Transfer']
+        return_transfers = None
+        json_return = verification_get_data(transfers, bank, return_transfers)
+        print(json_return)
+        return json_return, 200
+    elif obj_json['Data']['ReturnTransfer'] is None:
         transfers = obj_json['Data']['Transfer']
         return_transfers = obj_json['Data']['ReturnTransfer']
         json_return = verification_get_data(transfers, bank, return_transfers)
+        print(json_return)
+        return json_return, 200
+    elif obj_json['Data']['Transfer'] is not None and 'Transfer' in obj_json['Data']:
+        transfers = obj_json['Data']['Transfer']
+        return_transfers = obj_json['Data']['ReturnTransfer']
+        json_return = verification_get_data(transfers, bank, return_transfers)
+        print(json_return)
         return json_return, 200
     return jsonify(obj_json), 404
 
