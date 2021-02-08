@@ -1,0 +1,89 @@
+
+html,
+body,
+header,
+.view {
+    height: 100%;
+}
+.spending {
+    color: #ff4444;
+}
+
+.income {
+    color: #007E33;
+}
+table th {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+table td {
+    font-size: 1rem;
+    font-weight: 400;
+}
+.intro-1 {
+    background: url("https://u.cubeupload.com/xda321/forest1.jpg")no-repeat center center;
+    background-size: cover;
+}
+.intro-4 {
+    background: url("https://u.cubeupload.com/xda321/a.png")no-repeat center center;
+    background-size: cover;
+}
+.mbutton, .mbutton:hover {
+    background: #9067C6;
+    color: white;
+}
+.mbackground {
+    background: rgba(36, 32, 56, 0.77);
+}
+
+
+.navbar-brand{
+    font-family: 'Lora', serif!important;
+}
+
+.mbutton, .mbutton:hover {
+    background: #945ae2;
+    color: white;
+}
+
+.mbutton_long{
+    background: -webkit-linear-gradient(98deg, rgb(144, 103, 198), rgb(22, 91, 231) 200%);
+    color: white;
+}
+.navbar:not(.top-nav-collapse) {
+    background: transparent !important;
+}
+
+.rgba-gradient {
+    background: -webkit-linear-gradient(98deg, rgba(144, 103, 198, 0.7), rgba(22, 91, 231, 0.7) 200%);
+
+}
+.md-form input:not(.browser-default):focus:not([readonly])+label{
+    color: #7b40ca !important;
+    border-bottom: #7b40ca!important;
+}
+.md-form input:active, .md-form input:focus{
+    border-bottom: 1px solid #7b40ca !important;
+    -webkit-box-shadow: 0 1px 0 0 #7b40ca!important;
+    box-shadow: 0 1px 0 0 #7b40ca!important;
+
+}
+.md-form .prefix.active{
+    color:#7b40ca!important;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+h6 {
+    line-height: 1.7;
+}
+.dropdown-content li>a, .dropdown-content li>span {
+    color: #885bca;
+}
+
+.select-wrapper.active span.caret, .select-wrapper.active label.mdb-main-label{
+    color:#955ce5
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Login</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Material Design Bootstrap -->
+    <link rel="stylesheet" href="css/mdb.css">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,600&display=swap" rel="stylesheet">
+    <style>
+        .mbutton, .mbutton:hover {
+            background: #9067C6;
+            color: white;
+        }
+
+        html,
+        body,
+        header,
+        .view {
+            height: 100%;
+        }
+
+        .navbar-brand {
+            font-family: 'Lora', serif !important;
+        }
+
+        .intro-2 {
+            background: url("https://u.cubeupload.com/xda321/login.jpg") no-repeat center center;
+            background-size: cover;
+        }
+
+        .navbar:not(.top-nav-collapse) {
+            background: transparent !important;
+        }
+
+        .md-form input:not(.browser-default):focus:not([readonly]) + label {
+            color: #cac4ff !important;
+            border-bottom: #cac4ff !important;
+        }
+
+
+        .md-form input:active, .md-form input:focus {
+            border-bottom: 1px solid #c9c2ff !important;
+            -webkit-box-shadow: 0 1px 0 0 #c9c2ff !important;
+            box-shadow: 0 1px 0 0 #c9c2ff !important;
+
+        }
+
+
+        .mbackground {
+            background: rgba(36, 32, 56, 0.77);
+        }
+
+        .card {
+            background-color: rgba(229, 228, 255, 0.2);
+        }
+
+        .md-form label {
+            color: #ffffff;
+        }
+
+        h6 {
+            line-height: 1.7;
+        }
+
+
+        .md-form input[type=text]:focus:not([readonly]),
+        .md-form input[type=password]:focus:not([readonly]) {
+            border-bottom: 1px solid #8EDEF8;
+            box-shadow: 0 1px 0 0 #8EDEF8;
+        }
+
+        .md-form input[type=text]:focus:not([readonly]) + label,
+        .md-form input[type=password]:focus:not([readonly]) + label {
+            color: #8EDEF8;
+        }
+
+        .md-form .form-control {
+            color: #fff !important;
+        }
+
+        .form-check-label {
+            color: white;
+
+        }
+        .form-check-input[type="radio"]:not(:checked) + label:before, .form-check-input[type="radio"]:not(:checked) + label:after, label.btn input[type="radio"]:not(:checked) + label:before, label.btn input[type="radio"]:not(:checked) + label:after {
+            border: 2px solid #cdcdcd !important;
+        }
+
+        .form-check-input[type="radio"]:checked + label:after {
+            background-color: #a069ec !important;
+            border: 2px solid #a069ec !important;
+        }
+
+    </style>
+</head>
+<body>
+
+<!--Main Navigation-->
+<header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top scrolling-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#"><strong>Amethyst Holdings</strong></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-7"
+                    aria-controls="navbarSupportedContent-7" aria-expanded="false">
+            </button>
+
+        </div>
+    </nav>
+
+    <!--Intro Section-->
+    <section class="view intro-2">
+        <div class="mask mbackground h-100 d-flex justify-content-center align-items-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xl-5 col-lg-6 col-md-10 col-sm-12 mx-auto mt-lg-5">
+
+                        <!--Form with header-->
+                        <div class="card wow fadeIn" data-wow-delay="0.3s">
+                            <div class="card-body">
+
+                                <!--Header-->
+                                <div class="form-header mbutton" style="margin-bottom: 37px;">
+                                    <h3><i class="fas fa-sign-in-alt mt-2"></i>&nbsp&nbspZaloguj się</h3>
+                                </div>
+
+                                <!--Body-->
+                                <div class="md-form mt-4">
+                                    <i class="fas fa-user prefix white-text"></i>
+                                    <input type="text" id="login" class="form-control">
+                                    <label for="login">Twój login</label>
+                                </div>
+
+                                <div class="md-form">
+                                    <i class="fas fa-lock prefix white-text"></i>
+                                    <input type="password" id="password" class="form-control mactive">
+
+
+                                <div class="text-center mt-4">
+                                    <button class="btn mbutton btn-lg" id="wyslij">Zaloguj</button>
+                                </div>
+
+                            </div>
+                            <!--/Form with header-->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</header>
+<!--Main Navigation-->
+
+
+<!-- jQuery -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="js/mdb.min.js"></script>
+<!-- Your custom scripts (optional) -->
+
+<script>
+    $("#wyslij").click(function(){
+        var login = $("#login").val();
+        var password = $("#password").val();
+        $.post("/api/amethyst/login", "login="+login+"&password="+password, function(result){
+            var obj = JSON.parse(result);
+
+            if(obj.ID == -1){
+
+                $("#logError").html('<br/><h5>Błąd logowania, sprawdź poprawność loginu lub hasła.</h5>');
+
+            }else if(obj.jestPracownikiem == 0){
+
+                $(location).attr('href','afterlogon?kod='+obj.ID);
+
+            }else{
+
+                $("#kod").val(obj.ID);
+                $(location).attr('href','potwierdz_przelew?kod='+obj.ID);
+
+            }
+        });
+    });
+</script>
+
+
+<script>
+
+    new WOW().init();
+
+</script>
+</body>
+</html>
