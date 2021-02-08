@@ -17,9 +17,9 @@ class CreateTransfersTable extends Migration
             $table->increments('id')->primaryKey();
             $table->string('nadawca',26);
             $table->string('nazwa_nad', 255);
-            $table->string('adres_nad');
-            $table->string('kod_pocztowy_nad',5);
-            $table->string('miejscowosc_nad',255);
+            $table->string('adres_nad')->nullable();
+            $table->string('kod_pocztowy_nad',5)->nullable();
+            $table->string('miejscowosc_nad',255)->nullable();
             $table->decimal('kwota',20,2);
             $table->enum('typ',['wewnetrzny','miedzybankowy','ekspresowy']);
             $table->string('tytul',140);

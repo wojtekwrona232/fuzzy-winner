@@ -42,9 +42,6 @@ class TransferController extends Controller
        if($transfers == null && $returnTrueTransfers == null && $returnFalseTransfers == null) {
             return 0;
         }
-        if($transfers->count() == 1) {
-            return 0;
-        }
         $amount = 0;
         $finalTransfers = [];
         $returnFinalTransfers = [];

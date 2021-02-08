@@ -29,7 +29,7 @@ class TransferController extends Controller
             $transfer->typ = 2;
             $transfer->kwota =$kwotaExpress;
             $transfer->status = 2;
-            $transfer->nazwa_odb = 'Diamond Holdings';
+            $transfer->nazwa_odb = 'Diamond Holdings 2';
             $transfer->tytul = 'Wyrównanie';
             $transfer->save();
             app('App\Http\Controllers\AccountController')->changeExpressBillingAccountBalance($kwotaExpress*(-1));
@@ -41,9 +41,6 @@ class TransferController extends Controller
        if($transfers == null && $returnTrueTransfers == null && $returnFalseTransfers == null) {
             return 0;
         }
-       if($transfers->count() == 1) {
-           return 0;
-       }
         $amount = 0;
         $finalTransfers = [];
         $returnFinalTransfers = [];
@@ -79,80 +76,85 @@ class TransferController extends Controller
             $tr->update();
         }
         $b = [];
-        (array) $array = $response['ReturnTransfers'];
-        if($array != null) {
-            foreach($array as $a) {
-                array_push($b, $a['Details']['Status']);
-                if(strlen($a['Sender']['ZIP']) == 6) {
-                    $first = substr($a['Sender']['ZIP'],0,2);
-                    $second = substr($a['Sender']['ZIP'],3, 3);
-                    $a['Sender']['ZIP'] = null;
-                    $a['Sender']['ZIP'] = $first + $second;
-                }
-                if(strlen($a['Recipient']['ZIP']) == 6) {
-                    $first = substr($a['Sender']['ZIP'],0,2);
-                    $second = substr($a['Sender']['ZIP'],3, 3);
-                    $a['Sender']['ZIP'] = null;
-                    $a['Sender']['ZIP'] = $first + $second;
-                }
-                $transfer = Transfer::where('nadawca','=',$a['Sender']['Account'])->where('odbiorca','=',$a['Recipient']['Account'])->where('status','=',3)->where('kwota', '=', $a['Details']['Amount'])->where('tytul','=',$a['Details']['Title'])->get()->first();
-                if(strcmp($a['Details']['Status'],"VERIFIED") == 0 || strcmp($a['Details']['Status'],"EXECUTED_TRUE")  == 0) {
-                    $transfer->status = 4;
-                    $transfer->update();
-                }
-                else {
-                    $transfer->status = 5;
-                    $transfer->update();
+        if($response['ReturnTransfers'] != null) {
+            (array) $array = $response['ReturnTransfers'];
+            if($array != null) {
+                foreach($array as $a) {
+                    array_push($b, $a['Details']['Status']);
+                    if(strlen($a['Sender']['ZIP']) == 6) {
+                        $first = substr($a['Sender']['ZIP'],0,2);
+                        $second = substr($a['Sender']['ZIP'],3, 3);
+                        $a['Sender']['ZIP'] = null;
+                        $a['Sender']['ZIP'] = $first + $second;
+                    }
+                    if(strlen($a['Recipient']['ZIP']) == 6) {
+                        $first = substr($a['Sender']['ZIP'],0,2);
+                        $second = substr($a['Sender']['ZIP'],3, 3);
+                        $a['Sender']['ZIP'] = null;
+                        $a['Sender']['ZIP'] = $first + $second;
+                    }
+                    $transfer = Transfer::where('nadawca','=',$a['Sender']['Account'])->where('odbiorca','=',$a['Recipient']['Account'])->where('status','=',3)->where('kwota', '=', $a['Details']['Amount'])->where('tytul','=',$a['Details']['Title'])->get()->first();
+                    if(strcmp($a['Details']['Status'],"VERIFIED") == 0 || strcmp($a['Details']['Status'],"EXECUTED_TRUE")  == 0) {
+                        $transfer->status = 4;
+                        $transfer->update();
+                    }
+                    else {
+                        $transfer->status = 5;
+                        $transfer->update();
+                    }
                 }
             }
         }
-        (array) $transfers = $response['Transfers'];
-        if($transfers != null) {
-            foreach($transfers as $tr) {
+        if($response['Transfers'] != null) {
+            (array) $transfers = $response['Transfers'];
+            if($transfers != null) {
+                foreach($transfers as $tr) {
 
-                if(strlen($tr['Sender']['ZIP']) == 6) {
-                    $first = substr($tr['Sender']['ZIP'],0,2);
-                    $second = substr($tr['Sender']['ZIP'],3, 3);
-                    $tr['Sender']['ZIP'] = null;
-                    $tr['Sender']['ZIP'] = $first + $second;
-                }
-                if(strlen($tr['Recipient']['ZIP']) == 6) {
-                    $first = substr($a['Sender']['ZIP'],0,2);
-                    $second = substr($a['Sender']['ZIP'],3, 3);
-                    $tr['Sender']['ZIP'] = null;
-                    $tr['Sender']['ZIP'] = $first + $second;
-                }
-                $odbiorca = $tr['Recipient']['Account'];
-                $kwota = $tr['Details']['Amount'];
-                app('App\Http\Controllers\AccountController')->changeStandardBillingAccountBalance($kwota);
-                $transfer = new Transfer();
-                $transfer->nadawca = $tr['Sender']['Account'];
-                $transfer->nazwa_nad = $tr['Sender']['Name'];
-                $transfer->adres_nad = $tr['Sender']['Address'];
-                $transfer->kod_pocztowy_nad = $tr['Sender']['ZIP'];
-                $transfer->miejscowosc_nad = $tr['Sender']['Town'];
-                $transfer->kwota = $kwota;
-                $transfer->typ = 2;
-                $transfer->tytul = $tr['Details']['Title'];
-                $transfer->odbiorca = $odbiorca;
-                $transfer->nazwa_odb = $tr['Recipient']['Name'];
-                $transfer -> adres_odb = $tr['Recipient']['Address'];
-                $transfer->kod_pocztowy_odb = $tr['Recipient']['ZIP'];
-                $transfer->miejscowosc_odb = $tr['Recipient']['Town'];
-                $transfer-> jawny = 1;
-                $transfer->created_at = $tr['Details']['Timestamp'];
-                if(Account::where('numer','=',$odbiorca)->count() == 0) {
-                    $transfer->status = 7;
-                    $transfer->save();
-                }
-                else {
-                    $transfer->status = 6;
-                    app('App\Http\Controllers\AccountController')->changeStandardBillingAccountBalance($kwota*(-1));
-                    app('App\Http\Controllers\AccountController')->changeBalance($odbiorca,$kwota);
-                    $transfer->save();
+                    if(strlen($tr['Sender']['ZIP']) == 6) {
+                        $first = substr($tr['Sender']['ZIP'],0,2);
+                        $second = substr($tr['Sender']['ZIP'],3, 3);
+                        $tr['Sender']['ZIP'] = null;
+                        $tr['Sender']['ZIP'] = $first + $second;
+                    }
+                    if(strlen($tr['Recipient']['ZIP']) == 6) {
+                        $first = substr($a['Sender']['ZIP'],0,2);
+                        $second = substr($a['Sender']['ZIP'],3, 3);
+                        $tr['Sender']['ZIP'] = null;
+                        $tr['Sender']['ZIP'] = $first + $second;
+                    }
+                    $odbiorca = $tr['Recipient']['Account'];
+                    $kwota = $tr['Details']['Amount'];
+                    app('App\Http\Controllers\AccountController')->changeStandardBillingAccountBalance($kwota);
+                    $transfer = new Transfer();
+                    $transfer->nadawca = $tr['Sender']['Account'];
+                    $transfer->nazwa_nad = $tr['Sender']['Name'];
+                    $transfer->adres_nad = $tr['Sender']['Address'];
+                    $transfer->kod_pocztowy_nad = $tr['Sender']['ZIP'];
+                    $transfer->miejscowosc_nad = $tr['Sender']['Town'];
+                    $transfer->kwota = $kwota;
+                    $transfer->typ = 2;
+                    $transfer->tytul = $tr['Details']['Title'];
+                    $transfer->odbiorca = $odbiorca;
+                    $transfer->nazwa_odb = $tr['Recipient']['Name'];
+                    $transfer -> adres_odb = $tr['Recipient']['Address'];
+                    $transfer->kod_pocztowy_odb = $tr['Recipient']['ZIP'];
+                    $transfer->miejscowosc_odb = $tr['Recipient']['Town'];
+                    $transfer-> jawny = 1;
+                    $transfer->created_at = $tr['Details']['Timestamp'];
+                    if(Account::where('numer','=',$odbiorca)->count() == 0) {
+                        $transfer->status = 7;
+                        $transfer->save();
+                    }
+                    else {
+                        $transfer->status = 6;
+                        app('App\Http\Controllers\AccountController')->changeStandardBillingAccountBalance($kwota*(-1));
+                        app('App\Http\Controllers\AccountController')->changeBalance($odbiorca,$kwota);
+                        $transfer->save();
+                    }
                 }
             }
         }
+
 
         return 1;
     }
