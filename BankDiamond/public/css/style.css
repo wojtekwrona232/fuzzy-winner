@@ -1,0 +1,21 @@
+.footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   color: white;
+   text-align: center;
+}
+
+.picker__box .picker__header .picker__date-display .picker__weekday-display {
+background-color: black;
+}
+.picker__box .picker__header .picker__date-display {
+background-color: black;
+}
+.picker__box .picker__table .picker--focused, .picker__box .picker__table .picker__day--selected, .picker__box .picker__table .picker__day--selected:hover {
+background-color: black;
+}
+.picker__box .picker__table .picker__day.picker__day--today {
+color: black;
+}
