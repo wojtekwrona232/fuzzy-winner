@@ -17,19 +17,19 @@ def make_json_transfers(transfer, sender, recipient):
         },
         "Recipient": {
             "Account": recipient.account_number,
-            "Address": recipient.address,
+            "Address": None,
             "BankName": recipient.bank.name,
             "Name": recipient.name,
-            "Town": recipient.city,
-            "ZIP": recipient.zip_code
+            "Town": None,
+            "ZIP": None
         },
         "Sender": {
             "Account": sender.account_number,
-            "Address": sender.address,
+            "Address": None,
             "BankName": sender.bank.name,
             "Name": sender.name,
-            "Town": sender.city,
-            "ZIP": sender.zip_code
+            "Town": None,
+            "ZIP": None
         }
     }
 
@@ -53,22 +53,15 @@ def add_transfer_to_db(obj):
     db = DBMethods()
     for i in obj:
         bank = DBMethods().get_query(Banks).filter_by(name=i['Sender']['BankName']).first()
-        check_if_sender_exists = db.get_query(Client).filter_by(name=(i['Sender']['Name']),
-                                                                address=(i['Sender']['Address']),
-                                                                zip_code=(i['Sender']['ZIP']),
-                                                                account_number=(i['Sender']['Account']),
-                                                                city=(i['Sender']['Town']),
-                                                                bank_id=bank.id).first()
+        check_if_sender_exists = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
+                                                                       account_number=(i['Recipient']['Account']),
+                                                                       bank_id=bank.id).first()
         if check_if_sender_exists is None:
-            client = Client(name=i['Sender']['Name'], address=i['Sender']['Address'], zip_code=i['Sender']['ZIP'],
-                            account_number=i['Sender']['Account'], city=i['Sender']['Town'], bank_id=bank.id)
+            client = Client(name=i['Recipient']['Name'], account_number=i['Recipient']['Account'], bank_id=bank.id)
             db.add(client)
-            sender = db.get_query(Client).filter_by(name=(i['Sender']['Name']),
-                                                    address=(i['Sender']['Address']),
-                                                    zip_code=(i['Sender']['ZIP']),
-                                                    account_number=(i['Sender']['Account']),
-                                                    city=(i['Sender']['Town']),
-                                                    bank_id=bank.id).first()
+            sender = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
+                                                                       account_number=(i['Recipient']['Account']),
+                                                                       bank_id=bank.id).first()
         else:
             sender = check_if_sender_exists
 
@@ -82,26 +75,19 @@ def add_transfer_to_db(obj):
         if bank_id != -1 and bank_id >= 0:
             bankRe = DBMethods().get_query(Banks).filter_by(id=bank_id).first()
             check_if_recipient_exists = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
-                                                                       address=(i['Recipient']['Address']),
-                                                                       zip_code=(i['Recipient']['ZIP']),
                                                                        account_number=(i['Recipient']['Account']),
-                                                                       city=(i['Recipient']['Town']),
                                                                        bank_id=bankRe.id).first()
             if check_if_recipient_exists is None:
-                client2 = Client(name=i['Recipient']['Name'], address=i['Recipient']['Address'], zip_code=i['Recipient']['ZIP'],
-                                 account_number=i['Recipient']['Account'], city=i['Recipient']['Town'], bank_id=bankRe.id)
+                client2 = Client(name=i['Recipient']['Name'], account_number=i['Recipient']['Account'], bank_id=bankRe.id)
                 db.add(client2)
                 recipient = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
-                                                           address=(i['Recipient']['Address']),
-                                                           zip_code=(i['Recipient']['ZIP']),
                                                            account_number=(i['Recipient']['Account']),
-                                                           city=(i['Recipient']['Town']),
                                                            bank_id=bankRe.id).first()
             else:
                 recipient = check_if_recipient_exists
 
             transfer = Transfers(money=i['Details']['Amount'], id_sender=sender.id, id_receiver=recipient.id,
-                                 time=datetime.datetime.fromtimestamp(int(i['Details']['Timestamp'])), status=i['Details']['Status'],
+                                 time=i['Details']['Timestamp'], status=i['Details']['Status'],
                                  verified=i['Details']['Verified'], title=i['Details']['Title'])
             db.add(transfer)
 
@@ -109,52 +95,56 @@ def add_transfer_to_db(obj):
 def return_transfers_status(obj):
     db = DBMethods()
     for i in obj:
-        bank = DBMethods().get_query(Banks).filter_by(name=i['Sender']['BankName']).first()
-        sender = db.get_query(Client).filter_by(name=(i['Sender']['Name']),
-                                                address=(i['Sender']['Address']),
-                                                zip_code=(i['Sender']['ZIP']),
-                                                account_number=(i['Sender']['Account']),
-                                                city=(i['Sender']['Town']),
-                                                bank_id=bank.id).first()
         bank_id = -1
         for j in db.get_all(Banks):
             acc_num = j.account_number[3:10]
-            recip_acc_num = str(i['Recipient']['Account'])[3:10]
-            if acc_num == recip_acc_num:
+            sender_acc_num = str(i['Recipient']['Account'])[3:10]
+            if acc_num == sender_acc_num:
                 bank_id = j.id
         if bank_id != -1 and bank_id >= 0:
-            bankRe = DBMethods().get_query(Banks).filter_by(id=bank_id).first()
-            recipient = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
-                                                       address=(i['Recipient']['Address']),
-                                                       zip_code=(i['Recipient']['ZIP']),
-                                                       account_number=(i['Recipient']['Account']),
-                                                       city=(i['Recipient']['Town']),
-                                                       bank_id=bankRe.id).first()
+            bankRe1 = DBMethods().get_query(Banks).filter_by(id=bank_id).first()
 
-            transfer_cur = db.get_query(Transfers).filter_by(money=i['Details']['Amount'],
-                                                             id_sender=sender.id,
-                                                             id_receiver=recipient.id,
-                                                             time=datetime.datetime.fromtimestamp(int(i['Details']['Timestamp'])),
-                                                             title=i['Details']['Title']).first()
+            sender = db.get_query(Client).filter_by(name=(i['Sender']['Name']),
+                                                    account_number=(i['Sender']['Account']),
+                                                    bank_id=bankRe1.id).first()
+                                                    
+            bank_id1 = -1
+            for k in db.get_all(Banks):
+                acc_num = k.account_number[3:10]
+                recip_acc_num = str(i['Recipient']['Account'])[3:10]
+                if acc_num == recip_acc_num:
+                    bank_id1 = k.id
+            if bank_id1 != -1 and bank_id1 >= 0:
+                bankRe = DBMethods().get_query(Banks).filter_by(id=bank_id1).first()
+                recipient = db.get_query(Client).filter_by(name=(i['Recipient']['Name']),
+                                                        account_number=(i['Recipient']['Account']),
+                                                        bank_id=bankRe.id).first()
 
-            if i['Details']['Executed'] == 'True':
-                transfer = Transfers(money=i['Details']['Amount'],
-                                     id_sender=sender.id,
-                                     id_receiver=recipient.id,
-                                     time=datetime.datetime.fromtimestamp(int(i['Details']['Timestamp'])),
-                                     status=TransferStatusEnum.EXECUTED_TRUE,
-                                     verified=True, title=i['Details']['Title'])
+                print(sender.id)
+                print(recipient.id)
 
-                db.update_transfer(transfer_cur.id, transfer)
-            else:
-                transfer = Transfers(money=i['Details']['Amount'],
-                                     id_sender=sender.id,
-                                     id_receiver=recipient.id,
-                                     time=datetime.datetime.fromtimestamp(int(i['Details']['Timestamp'])),
-                                     status=TransferStatusEnum.EXECUTED_FALSE,
-                                     verified=True, title=i['Details']['Title'])
+                transfer_cur = db.get_query(Transfers).filter_by(money=i['Details']['Amount'], 
+                                                                 id_sender=sender.id, 
+                                                                 id_receiver=recipient.id,
+                                                                 title=i['Details']['Title']).first()
 
-                db.update_transfer(transfer_cur.id, transfer)
+                print(transfer_cur)
+                if i['Details']['Executed'] == 'True' or i['Details']['Executed'] == 'true':
+                    transfer = Transfers(money=i['Details']['Amount'],
+                                        id_sender=sender.id,
+                                        id_receiver=recipient.id,
+                                        status=TransferStatusEnum.EXECUTED_TRUE,
+                                        verified=True, title=i['Details']['Title'])
+
+                    db.update_transfer(transfer_cur.id, transfer)
+                else:
+                    transfer = Transfers(money=i['Details']['Amount'],
+                                        id_sender=sender.id,
+                                        id_receiver=recipient.id,
+                                        status=TransferStatusEnum.EXECUTED_FALSE,
+                                        verified=True, title=i['Details']['Title'])
+
+                    db.update_transfer(transfer_cur.id, transfer)
 
 
 def manual_verification(listt):
@@ -232,8 +222,8 @@ def verification_get_data(obj, bank, return_transfers):
         b = Banks(name=bank['Name'], account_number=bank['AccountNumber'], balance=10000.00)
         DBMethods().add(b)
 
-    if return_transfers is not None:
-        return_transfers_status(return_transfers)
+    # if return_transfers is not None:
+    #     return_transfers_status(return_transfers)
 
     if obj is not None:
         to_be_verified_manually = []

@@ -28,9 +28,6 @@ class Client(Base):
     __tablename__ = 'klienci'
     id = Column('id', Integer, primary_key=True, nullable=False, autoincrement=True)
     name = Column('imie_nazwisko', String, nullable=False)
-    address = Column('adres', String, nullable=True)
-    zip_code = Column('kod_pocztowy', String, nullable=True)
-    city = Column('miejscowosc', String, nullable=True)
     account_number = Column('nr_konta', String, nullable=False)
     bank_id = Column('id_bank', Integer, ForeignKey('banki.id'), nullable=False)
     bank = relationship("Banks", lazy='subquery')
@@ -59,7 +56,7 @@ class SQLUtil:
 
     # creates new engine for orm
     def create_engine(self):
-        string = 'mysql+pymysql://freedbtech_jednostkaR:1234567890@freedb.tech/freedbtech_jednostka'
+        string = 'mysql+pymysql://freedbtech_jrPABur:1234567890@freedb.tech/freedbtech_jednostkaRozliczajaca'
         self.__engine__ = create_engine(string)
 
     # return current engine for orm
@@ -152,21 +149,6 @@ class DBMethods:
             bank.name = new_entity.name
             bank.account_number = new_entity.account_number
             bank.balance = new_entity.balance
-            self.util.get_session().commit()
-        except:
-            self.util.session_rollback()
-            raise
-
-    def update_client(self, e_id, new_entity):
-        try:
-            sel = self.util.get_session().query(Client).get(e_id)
-            sel.name = new_entity.__getitem__(0)
-            sel.address = new_entity.__getitem__(1)
-            sel.zip_code = new_entity.__getitem__(2)
-            sel.city = new_entity.__getitem__(3)
-            sel.contact = new_entity.__getitem__(5)
-            sel.account_number = new_entity.__getitem__(6)
-            sel.bank_id = new_entity.__getitem__(7)
             self.util.get_session().commit()
         except:
             self.util.session_rollback()
